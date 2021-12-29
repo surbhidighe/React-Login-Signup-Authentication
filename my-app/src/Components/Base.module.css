@@ -1,0 +1,10 @@
+.button_common {
+    background-color: olivedrab;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    font-size: 22px;
+    border-radius: 15px;
+    margin: 1rem;
+    width: 90%;
+}
