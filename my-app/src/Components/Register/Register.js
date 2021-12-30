@@ -1,12 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import basestyle from "../Base.module.css";
 import registerstyle from "./Register.module.css";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 import { useNavigate, NavLink } from "react-router-dom";
 const Register = () => {
   const navigate = useNavigate();
+
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmit, setIsSubmit] = useState(false);
   const [user, setUserDetails] = useState({
     fname: "",
     lname: "",
@@ -23,29 +25,54 @@ const Register = () => {
     });
   };
 
+  const validateForm = (values) => {
+    const error = {};
+    const regex = /^[^\s+@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    if (!values.fname) {
+      error.fname = "First Name is required";
+    }
+    if (!values.lname) {
+      error.lname = "Last Name is required";
+    }
+    if (!values.email) {
+      error.email = "Email is required";
+    } else if (!regex.test(values.email)) {
+      error.email = "This is not a valid email format!";
+    }
+    if (!values.password) {
+      error.password = "Password is required";
+    } else if (values.password.length < 4) {
+      error.password = "Password must be more than 4 characters";
+    } else if (values.password.length > 10) {
+      error.password = "Password cannot exceed more than 10 characters";
+    }
+    if (!values.cpassword) {
+      error.cpassword = "Confirm Password is required";
+    } else if (values.cpassword !== values.password) {
+      error.cpassword = "Confirm password and password should be same";
+    }
+    return error;
+  };
   const signupHandler = (e) => {
     e.preventDefault();
+    setFormErrors(validateForm(user));
+    setIsSubmit(true);
+    // if (!formErrors) {
+    //   setIsSubmit(true);
+    // }
+  };
 
-    const { fname, lname, email, password, cpassword } = user;
-    if (fname && lname && email && password && password === cpassword) {
+  useEffect(() => {
+    if (Object.keys(formErrors).length === 0 && isSubmit) {
+      console.log(user);
       axios.post("http://localhost:9002/signup/", user).then((res) => {
         alert(res.data.message);
         navigate("/login", { replace: true });
       });
-    } else {
-      toast.warn("All fields are required");
     }
-  };
-
+  }, [formErrors]);
   return (
     <>
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        closeOnClick
-        limit={1}
-      />
       <div className={registerstyle.register}>
         <form>
           <h1>Create your account</h1>
@@ -57,6 +84,7 @@ const Register = () => {
             onChange={changeHandler}
             value={user.fname}
           />
+          <p className={basestyle.error}>{formErrors.fname}</p>
           <input
             type="text"
             name="lname"
@@ -65,7 +93,7 @@ const Register = () => {
             onChange={changeHandler}
             value={user.lname}
           />
-
+          <p className={basestyle.error}>{formErrors.lname}</p>
           <input
             type="email"
             name="email"
@@ -74,7 +102,7 @@ const Register = () => {
             onChange={changeHandler}
             value={user.email}
           />
-
+          <p className={basestyle.error}>{formErrors.email}</p>
           <input
             type="password"
             name="password"
@@ -83,6 +111,7 @@ const Register = () => {
             onChange={changeHandler}
             value={user.password}
           />
+          <p className={basestyle.error}>{formErrors.password}</p>
           <input
             type="password"
             name="cpassword"
@@ -91,6 +120,7 @@ const Register = () => {
             onChange={changeHandler}
             value={user.cpassword}
           />
+          <p className={basestyle.error}>{formErrors.cpassword}</p>
           <button className={basestyle.button_common} onClick={signupHandler}>
             Register
           </button>

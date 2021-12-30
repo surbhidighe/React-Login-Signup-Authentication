@@ -8,3 +8,10 @@
     margin: 1rem;
     width: 90%;
 }
+.error {
+    color: red;
+    text-align: left;
+    margin: auto;
+    font-size: 16px;
+    padding: 0px 1rem;
+}
